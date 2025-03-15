@@ -1,0 +1,54 @@
+plugins {
+  id 'org.openapi.generator'
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'io.swagger.core.v3:swagger-core'
+}
+
+tasks {
+  openApiGenerate {
+    generatorName = "kotlin-spring"
+    packageName = "com.bentfores.analysis.service.api.v1"
+    outputDir = "$projectDir/build/generated-resources"
+    apiPackage = "com.bentfores.analysis.service.api.v1"
+    modelPackage = "com.bentfores.analysis.service.api.model"
+    inputSpec = "$rootDir/docs/swagger/bentfores-analysis-service-1.0.0.yaml"
+    globalProperties = [
+        apis  : "Suppliers",
+        models: ""
+    ]
+    additionalProperties = [
+        useSpringBoot3         : true,
+        useSpringFox           : false,
+        gradleBuildFile        : false,
+        useSwaggerUI           : false,
+        library                : "spring-boot",
+        interfaceOnly          : true,
+        openApiNullable        : false,
+        exceptionHandler       : false,
+        dateLibrary            : "java8",
+        serializableModel      : "true",
+        serializationLibrary   : "jackson",
+        documentationProvider  : "springdoc",
+        annotationLibrary      : "swagger2",
+        useTags                : true,
+        hideGenerationTimestamp: false,
+        enumPropertyNaming     : "UPPERCASE",
+    ]
+  }
+  sourceSets {
+    main {
+      kotlin {
+        srcDir(files("${openApiGenerate.outputDir.get()}/src/main/kotlin"))
+      }
+    }
+  }
+}
+
+compileKotlin.dependsOn tasks.openApiGenerate
+
+task cleanAndApiGenerate(group: 'build', description: 'clean') {
+  tasks.findByName('openApiGenerate').mustRunAfter 'clean'
+}

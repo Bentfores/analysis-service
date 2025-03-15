@@ -1,0 +1,134 @@
+openapi: 3.0.3
+info:
+  title: Bentfores Analysis Service Swagger
+  description: |-
+    Документация API модуля управления постащиками
+  version: 1.0.0
+tags:
+  - name: Suppliers
+    description: Suppliers Processing
+
+security:
+  - OAuth2_Local: []
+  - OAuth2_Integration: []
+paths:
+  /suppliers:
+    get:
+      tags:
+        - Suppliers
+      summary: Get suppliers info
+      description: Returns suppliers information
+      operationId: suppliersByGet
+      security:
+        - OAuth2_Local: []
+        - OAuth2_Integration: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SuppliersInformation'
+        '400':
+          description: Bad Request/Internal Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+
+components:
+  securitySchemes:
+    OAuth2_Local:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: http://localhost:8444/realms/local/protocol/openid-connect/token
+          scopes: { }
+
+    OAuth2_Integration:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://adrontest.com:9443/realms/adron-test/protocol/openid-connect/token
+          scopes: { }
+
+#  parameters:
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - errorCode
+        - message
+        - detailedMessage
+        - timestamp
+      description: Controlled Error Response
+      properties:
+        errorCode:
+          type: string
+          description: Error Business Code
+          example: AGS-08
+        message:
+          type: string
+          description: Error Description
+          example: Old password doesn't match
+        timestamp:
+          type: string
+          description: When the controlled error was produced
+          example: 2024-04-21T13:26:44.148
+        args:
+          type: object
+          description: Dynamic parameters passes as Map<String, Any>
+
+    SuppliersInformation:
+      type: object
+      required:
+        - article
+        - name
+        - imageUrl
+        - price
+        - quantity
+        - rating
+        - years
+        - supplierUrl
+        - supplierImageUrl
+        - supplierProductUrl
+      properties:
+        article:
+          type: string
+          example: "12345-ABC"
+        name:
+          type: string
+          example: "High-Quality Widget"
+        imageUrl:
+          type: string
+          example: "https://example.com/images/product.jpg"
+        price:
+          type: number
+          format: decimal
+          example: 19.99
+        quantity:
+          type: number
+          format: decimal
+          example: 150
+        rating:
+          type: number
+          format: decimal
+          example: 4.8
+        years:
+          type: number
+          format: decimal
+          example: 3
+        supplierUrl:
+          type: string
+          example: "https://supplier.com/profile"
+        supplierImageUrl:
+          type: string
+          example: "https://supplier.com/logo.jpg"
+        supplierProductUrl:
+          type: string
+          example: "https://supplier.com/product/12345"

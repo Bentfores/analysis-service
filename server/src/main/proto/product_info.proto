@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package com.bentfores.analysis.service;
+
+import "google/protobuf/timestamp.proto";
+
+message ProductsInfo {
+  repeated Product products = 1;
+
+  message Product {
+    string article = 1;
+    string name = 2;
+    string image_url = 3;
+    string profit_place = 4;
+  }
+}

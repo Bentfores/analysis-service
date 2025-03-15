@@ -1,0 +1,143 @@
+plugins {
+    id 'application'
+    id 'org.springframework.boot'
+    id 'org.jetbrains.kotlin.plugin.jpa'
+    id 'com.google.protobuf'
+    id 'com.google.cloud.tools.jib'
+    id 'jacoco'
+}
+
+dependencies {
+    implementation(project(":${rootProject.name}-api"))
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui'
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign') {
+        exclude(group: 'org.springframework.cloud', module: 'spring-cloud-starter-loadbalancer')
+    }
+
+    // Feign
+    implementation 'io.github.openfeign:feign-micrometer'
+    implementation 'io.github.openfeign:feign-httpclient'
+
+    // Tracing
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+    // Protobuf
+    implementation('io.confluent:kafka-protobuf-serializer') {
+        // fix swagger collision
+        exclude(group: 'io.swagger.core.v3', module: 'swagger-annotations')
+    }
+    implementation 'com.google.protobuf:protobuf-kotlin'
+
+
+    // Logging
+    implementation 'io.github.oshai:kotlin-logging-jvm'
+    implementation 'org.zalando:logbook-spring-boot-starter'
+    implementation 'org.zalando:logbook-httpclient5'
+    implementation 'net.logstash.logback:logstash-logback-encoder'
+
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.liquibase:liquibase-core'
+    implementation 'com.h2database:h2'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+
+    implementation 'io.github.openfeign:feign-okhttp'
+
+    implementation 'com.opencsv:opencsv'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
+    }
+
+    generateProtoTasks {
+        all().forEach {
+            it.builtins {
+                create("kotlin")
+            }
+        }
+    }
+}
+
+compileJava.dependsOn tasks.generateProto
+compileTestJava.dependsOn tasks.generateProto
+
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+        finalizedBy(tasks.jacocoTestReport)
+    }
+
+    processResources {
+        copy {
+            from("../docs/swagger/")
+            into("src/main/resources/static/openapi")
+        }
+    }
+
+    jacocoTestReport {
+        dependsOn(tasks.test)
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+            html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+        }
+    }
+}
+
+springBoot {
+    buildInfo()
+}
+
+jar {
+    enabled = false
+}
+
+bootJar {
+    enabled = true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jib {
+    setAllowInsecureRegistries true
+
+    container {
+        mainClass = "com.bentfores.analysis.service.server.ApplicationKt"
+        user = "root"
+        containerizingMode = "packaged"
+    }
+
+    from {
+        image = "openjdk:21-jdk"
+        platforms {
+            platform {
+                architecture = "amd64"
+                os = "linux"
+            }
+        }
+    }
+
+    to {
+        image = "bentfores-analysis-service"
+        tags = ["${project.version}"]
+    }
+}

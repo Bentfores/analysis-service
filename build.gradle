@@ -1,0 +1,49 @@
+plugins {
+    id "org.springframework.boot" version "$springBootVersion" apply false
+    id "io.spring.dependency-management" version "$springDependencyManagementVersion"
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion" apply false
+    id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion" apply false
+    id "org.jetbrains.kotlin.plugin.jpa" version "$kotlinVersion" apply false
+    id "org.openapi.generator" version "$openapiGeneratorVersion" apply false
+    id "com.google.protobuf" version "$protobufPluginVersion" apply false
+    id "com.google.cloud.tools.jib" version "$jibPluginVersion" apply false
+}
+
+subprojects {
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "org.jetbrains.kotlin.jvm"
+    apply plugin: "org.jetbrains.kotlin.plugin.spring"
+
+    repositories {
+        mavenCentral()
+        maven { url = "https://packages.confluent.io/maven/" }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom("org.springdoc:springdoc-openapi:$springDocOpenApiVersion")
+            mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+            mavenBom("org.zalando:logbook-bom:$logbookVersion")
+        }
+
+        dependencies {
+            dependency "org.springdoc:springdoc-openapi-kotlin:$springdocOpenapiKotlinVersion"
+
+            dependency "org.liquibase:liquibase-core:$liquibaseVersion"
+            dependency "com.h2database:h2:$h2Version"
+
+            dependency "io.confluent:kafka-protobuf-serializer:$confluentKafkaProtobuf"
+            dependency "com.google.protobuf:protobuf-kotlin:$protobufVersion"
+
+            dependency "io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion"
+            dependency "io.swagger.core.v3:swagger-core:$swaggerVersion"
+
+            dependency "net.logstash.logback:logstash-logback-encoder:$logstahEncoderVersion"
+            dependency "io.github.openfeign:feign-okhttp:$feignOkhttpVersion"
+
+            dependency "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+
+            dependency "com.opencsv:opencsv:$openCsvVersion"
+        }
+    }
+}

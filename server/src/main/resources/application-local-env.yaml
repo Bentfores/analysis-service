@@ -1,0 +1,74 @@
+---
+server:
+  port: 8083
+  cors:
+    allowed-origin-patterns:
+      - '*'
+    allowed-methods:
+      - GET
+      - POST
+      - PATCH
+      - PUT
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - X-Requested-With
+      - Platform
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5434/bentfores-analysis-service
+    username: bentfores-analysis-service
+    password: bentfores-analysis-service
+
+  liquibase:
+    enabled: true
+    user: bentfores-analysis-service
+    password: bentfores-analysis-service
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+
+  kafka:
+    bootstrap-servers: localhost:9092, localhost:9093
+    consumer:
+      properties:
+        schema.registry.url: http://localhost:8081
+    producer:
+      properties:
+        schema.registry.url: http://localhost:8081
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8444/realms/local
+          jwk-set-uri: http://localhost:8444/realms/local/protocol/openid-connect/certs
+
+system:
+  kafka:
+    consumer:
+      schema-registry-url: http://localhost:8081
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    useRootPath: true
+    url: /openapi/bentfores-analysis-service-1.0.0.yaml
+  api-docs:
+    enabled: false
+
+api:
+  external:
+    goods-and-seller-management-url: localhost:8082
+    goods-aggregator-url: localhost:8083
+
+jobs:
+  inactive-bots-refresher:
+    enabled: false
+
+management:
+  tracing:
+    enabled: false
