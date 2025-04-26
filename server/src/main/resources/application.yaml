@@ -28,15 +28,6 @@ system:
         name: analysis-service.product-info.v1
         protobuf-value-type: com.bentfores.analysis.service.ProductInfo$ProductsInfo
 
-jobs:
-  inactive-bots-refresher:
-    fixed-delay: 30
-    initial-delay-in-millis: 5000
-    enabled: true
-    properties:
-      thresholdMinutes: 10
-      batchSize: 10
-
 management:
   tracing:
     enabled: true
@@ -54,6 +45,22 @@ management:
         http:
           server:
             requests: true
+
+jobs:
+  supplier-info-getter:
+    fixed-delay: 30
+    initial-delay-in-millis: 30
+    enabled: true
+    properties:
+      thresholdMinutes: 10
+      batchSize: 10
+  blank-supplier-info-getter:
+    fixed-delay: 3600000
+    initial-delay-in-millis: 30
+    enabled: true
+    properties:
+      thresholdMinutes: 10
+      batchSize: 10
 
 logbook:
   filter:

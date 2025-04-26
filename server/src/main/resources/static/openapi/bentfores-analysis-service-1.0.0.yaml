@@ -12,16 +12,18 @@ security:
   - OAuth2_Local: []
   - OAuth2_Integration: []
 paths:
-  /suppliers:
+  /analysis/suppliers/{article}:
     get:
       tags:
-        - Suppliers
+        - Analysis
       summary: Get suppliers info
-      description: Returns suppliers information
-      operationId: suppliersByGet
+      description: Returns suppliers information of a product
+      operationId: SuppliersInfoByGet
       security:
-        - OAuth2_Local: []
-        - OAuth2_Integration: []
+        - OAuth2_Local: [ ]
+        - OAuth2_Integration: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ArticlePath'
       responses:
         '200':
           description: OK
@@ -30,7 +32,86 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SuppliersInformation'
+                  $ref: '#/components/schemas/SuppliersInfo'
+        '400':
+          description: Bad Request/Internal Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+  /analysis/search/{article}:
+    post:
+      tags:
+        - Analysis
+      summary: Post search product suppliers
+      description: Searches info for a product again
+      operationId: SuppliersSearchByPost
+      security:
+        - OAuth2_Local: [ ]
+        - OAuth2_Integration: [ ]
+      parameters:
+        - $ref: '#/components/parameters/ArticlePath'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad Request/Internal Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+  /analysis/message:
+    post:
+      tags:
+        - Analysis
+      summary: Post send message to a supplier
+      description: Sends a message to supplier on Alibaba
+      operationId: SendMessageByPost
+      security:
+        - OAuth2_Local: [ ]
+        - OAuth2_Integration: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad Request/Internal Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+  /analysis/suppliers/parsed:
+    post:
+      tags:
+        - Analysis
+      summary: Post suppliers parsed
+      description: Post parsed suppliers info
+      operationId: SuppliersParsedByPost
+      security:
+        - OAuth2_Local: [ ]
+        - OAuth2_Integration: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ParsedSupplier'
+      responses:
+        '200':
+          description: Successful operation
         '400':
           description: Bad Request/Internal Validation Error
           content:
@@ -56,7 +137,23 @@ components:
           tokenUrl: https://adrontest.com:9443/realms/adron-test/protocol/openid-connect/token
           scopes: { }
 
-#  parameters:
+  parameters:
+    ArticlePath:
+      in: path
+      name: article
+      required: true
+      description: Products article path param
+      example: 12345
+      schema:
+        type: string
+    ArticleQuery:
+      in: query
+      name: article
+      required: false
+      description: Products article query param
+      example: 12345
+      schema:
+        type: string
 
   schemas:
     ErrorResponse:
@@ -84,51 +181,138 @@ components:
           type: object
           description: Dynamic parameters passes as Map<String, Any>
 
-    SuppliersInformation:
+    SendMessageRequest:
+      type: object
+      required:
+        - productUrl
+        - article
+        - supplierId
+      properties:
+        productUrl:
+          type: string
+          example: https://www.alibaba.com/...
+        article:
+          type: string
+          example: "11114"
+        supplierId:
+          type: string
+          format: uuid
+          example: 7da6038d-fc4f-48d7-8110-71a53206967c
+
+    ParsedSupplier:
       type: object
       required:
         - article
-        - name
+        - profitPlace
         - imageUrl
         - price
-        - quantity
+        - minOrder
         - rating
         - years
+        - supplierName
         - supplierUrl
         - supplierImageUrl
         - supplierProductUrl
       properties:
         article:
           type: string
-          example: "12345-ABC"
-        name:
-          type: string
-          example: "High-Quality Widget"
+          example: 1111
+        profitPlace:
+          type: number
+          example: 8.5
+          description: Profit place
         imageUrl:
           type: string
-          example: "https://example.com/images/product.jpg"
+          example: url
+          description: Url of an image
         price:
           type: number
-          format: decimal
-          example: 19.99
-        quantity:
+          example: 4.9
+          description: Price of a product
+        minOrder:
           type: number
-          format: decimal
-          example: 150
+          example: 4.9
+          description: Minimal order
         rating:
           type: number
-          format: decimal
-          example: 4.8
+          example: 4.5
+          description: Rating of supplier
         years:
           type: number
-          format: decimal
-          example: 3
+          example: 4
+          description: Number of years on Alibaba
+        supplierName:
+          type: string
+          example: Ningbo City Beijila Pets Products Co., Ltd.
+          description: Name of a supplier
         supplierUrl:
           type: string
-          example: "https://supplier.com/profile"
+          example: url
+          description: Supplier url
         supplierImageUrl:
           type: string
-          example: "https://supplier.com/logo.jpg"
+          example: url
+          description: Url of a product image
         supplierProductUrl:
           type: string
-          example: "https://supplier.com/product/12345"
+          example: url
+          description: Url of a product
+
+    SuppliersInfo:
+      type: object
+      required:
+        - supplierId
+        - name
+        - supplierImageUrl
+        - supplierProductUrl
+        - rating
+        - years
+        - price
+        - minOrder
+        - status
+      properties:
+        supplierId:
+          type: string
+          format: uuid
+          example: 7da6038d-fc4f-48d7-8110-71a53206967c
+        name:
+          type: string
+          example: supplier
+          description: Name of a supplier
+        supplierImageUrl:
+          type: string
+          example: url
+          description: Url of an image
+        supplierProductUrl:
+          type: string
+          example: url
+          description: Url of a product
+        rating:
+          type: number
+          example: 4.9
+          description: Supplier rating
+        years:
+          type: number
+          example: 8.5
+          description: Number of years on Alibaba
+        price:
+          type: number
+          example: 3.8
+          description: Price of a product
+        minOrder:
+          type: number
+          example: 20
+          description: Min number of products to buy at a specific price
+        status:
+          $ref: '#/components/schemas/SupplierStatusEnum'
+
+    SupplierStatusEnum:
+      type: string
+      example: NOT_COOPERATING
+      description: Status of good
+      enum:
+        - NOT_COOPERATING
+        - BLACKLISTED
+        - MESSAGE_SENT
+        - COOPERATING
+        - WRONG

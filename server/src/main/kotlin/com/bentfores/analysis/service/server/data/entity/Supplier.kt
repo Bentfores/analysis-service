@@ -1,13 +1,15 @@
 package com.bentfores.analysis.service.server.data.entity
 
-import com.adron.bot.manager.server.data.misc.Auditable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
@@ -51,4 +53,11 @@ data class Supplier(
   @Column(name = "supplier_product_url")
   var supplierProductUrl: String,
 
-  ) : Auditable()
+  @CreatedDate
+  @Column(updatable = false, name = "created_at")
+  var createdAt: LocalDateTime? = LocalDateTime.now(),
+
+  @LastModifiedDate
+  @Column(name = "updated_at")
+  var updatedAt: LocalDateTime? = null
+)

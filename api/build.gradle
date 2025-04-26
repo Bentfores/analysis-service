@@ -16,7 +16,7 @@ tasks {
     modelPackage = "com.bentfores.analysis.service.api.model"
     inputSpec = "$rootDir/docs/swagger/bentfores-analysis-service-1.0.0.yaml"
     globalProperties = [
-        apis  : "Suppliers",
+        apis  : "Analysis",
         models: ""
     ]
     additionalProperties = [

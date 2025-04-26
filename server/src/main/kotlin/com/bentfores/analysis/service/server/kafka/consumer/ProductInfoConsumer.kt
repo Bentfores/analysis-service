@@ -1,7 +1,7 @@
 package com.bentfores.analysis.service.server.kafka.consumer
 
 import com.bentfores.analysis.service.ProductInfo.ProductsInfo
-import com.bentfores.analysis.service.server.service.v1.SupplierServiceV1
+import com.bentfores.analysis.service.server.service.v1.AnalysisServiceV1
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.KafkaHeaders
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ProductInfoConsumer(
-  private val supplierServiceV1: SupplierServiceV1,
+  private val analysisServiceV1: AnalysisServiceV1,
 ) {
 
   @KafkaListener(
@@ -29,7 +29,7 @@ class ProductInfoConsumer(
   ) {
     log.info { "ProductInfo event received: \n $productInfoEvent" }
 
-    supplierServiceV1.updateSuppliers(productInfoEvent)
+    analysisServiceV1.updateSuppliers(productInfoEvent)
   }
 
   companion object {

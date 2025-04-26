@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
---changeset Shveed:AGS-105.1
-create table supplier
+--changeset yuliezai:1
+create table if not exists supplier
 (
     supplier_id          uuid         not null
         constraint pk_supplier primary key,
@@ -16,6 +16,6 @@ create table supplier
     image_url            varchar(255) not null,
     supplier_image_url   varchar(255) not null,
     supplier_product_url varchar(255) not null,
-    created_at           timestamp    not null,
-    updated_at           timestamp    not null
+    created_at           timestamp    not null default now(),
+    updated_at           timestamp    null
 );

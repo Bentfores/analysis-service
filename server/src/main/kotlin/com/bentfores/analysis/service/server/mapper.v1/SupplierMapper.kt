@@ -1,49 +1,70 @@
 package com.bentfores.analysis.service.server.mapper.v1
 
-import com.bentfores.analysis.service.api.model.SuppliersInformation
+import com.bentfores.analysis.service.api.model.ParsedSupplier
+import com.bentfores.analysis.service.api.model.SupplierStatusEnum
 import com.bentfores.analysis.service.server.data.entity.Supplier
-import com.bentfores.analysis.service.server.external.goodsAggregator.model.SuppliersInfo
+import com.bentfores.analysis.service.server.external.goodsAndSellerManagement.model.ManagementSuppliersInfo
+import com.bentfores.analysis.service.server.external.goodsAndSellerManagement.model.NewSupplier
 import org.springframework.stereotype.Component
+import com.bentfores.analysis.service.api.model.SuppliersInfo as ApiSuppliersInfo
 
 @Component
 class SupplierMapper {
 
-  fun mapToSupplier(info: SuppliersInfo): Supplier {
-    return Supplier(
-      article = info.article,
-      profitPlace = info.profitPlace,
-      supplierName = info.name,
-      productUrl = info.supplierProductUrl,
-      price = info.price,
-      quantity = info.quantity,
-      rating = info.rating,
-      years = info.years,
-      imageUrl = info.supplierImageUrl,
-      supplierImageUrl =  info.supplierImageUrl,
-      supplierProductUrl = info.supplierProductUrl
-    )
+  fun mapToSuppliersInformationList(
+    suppliers: List<Supplier>,
+    suppliersInfo: List<ManagementSuppliersInfo>
+  ): List<ApiSuppliersInfo> {
+    val infoById = suppliersInfo.associateBy { it.name }
+
+    return suppliers.map { supplier ->
+      val info = infoById[supplier.supplierName]
+      ApiSuppliersInfo(
+        supplierId = supplier.supplierId!!,
+        name = supplier.supplierName,
+        price = supplier.price,
+        minOrder = supplier.quantity,
+        rating = supplier.rating,
+        years = supplier.years,
+        supplierImageUrl = supplier.supplierImageUrl,
+        supplierProductUrl = supplier.supplierProductUrl,
+        status = mapManagementSupplierStatusToSupplierStatus(info!!.status),
+      )
+    }
   }
 
-  fun mapToSupplierList(infoList: List<SuppliersInfo>): List<Supplier> {
-    return infoList.map { mapToSupplier(it) }
+  fun mapToNewSupplierInfoList(suppliers: List<ParsedSupplier>) =
+    suppliers.map { mapToNewSupplierInfo(it) }
+
+  fun mapToNewSupplierInfo(supplier: ParsedSupplier) = NewSupplier(
+    name = supplier.supplierName,
+    url = supplier.supplierUrl,
+  )
+
+  fun mapParsedSupplierToSupplierList(infoList: List<ParsedSupplier>): List<Supplier> {
+    return infoList.map { mapParsedSupplierToSupplier(it) }
   }
 
-  fun toSuppliersInformation(supplier: Supplier): SuppliersInformation {
-    return SuppliersInformation(
-      article = supplier.article,
-      name = supplier.supplierName,
-      imageUrl = supplier.imageUrl,
-      price = supplier.price,
-      quantity = supplier.quantity,
-      rating = supplier.rating,
-      years = supplier.years,
-      supplierUrl = supplier.productUrl,
-      supplierImageUrl = supplier.supplierImageUrl,
-      supplierProductUrl = supplier.supplierProductUrl
-    )
-  }
+  fun mapParsedSupplierToSupplier(supplier: ParsedSupplier) = Supplier(
+    article = supplier.article,
+    profitPlace = supplier.profitPlace,
+    supplierName = supplier.supplierName,
+    productUrl = supplier.supplierProductUrl,
+    price = supplier.price,
+    quantity = supplier.minOrder,
+    rating = supplier.rating,
+    years = supplier.years,
+    imageUrl = supplier.imageUrl,
+    supplierImageUrl = supplier.supplierImageUrl,
+    supplierProductUrl = supplier.supplierProductUrl
+  )
 
-  fun mapToSuppliersInformationList(suppliers: List<Supplier>): List<SuppliersInformation> {
-    return suppliers.map { toSuppliersInformation(it) }
-  }
+  fun mapManagementSupplierStatusToSupplierStatus(supplierStatus: ManagementSuppliersInfo.SupplierStatus) =
+    when (supplierStatus) {
+      ManagementSuppliersInfo.SupplierStatus.NOT_COOPERATING -> SupplierStatusEnum.NOT_COOPERATING
+      ManagementSuppliersInfo.SupplierStatus.BLACKLISTED -> SupplierStatusEnum.BLACKLISTED
+      ManagementSuppliersInfo.SupplierStatus.MESSAGE_SENT -> SupplierStatusEnum.MESSAGE_SENT
+      ManagementSuppliersInfo.SupplierStatus.COOPERATING -> SupplierStatusEnum.COOPERATING
+      ManagementSuppliersInfo.SupplierStatus.WRONG -> SupplierStatusEnum.WRONG
+    }
 }

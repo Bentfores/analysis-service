@@ -1,4 +1,4 @@
-package com.adron.bot.manager.server.data.misc
+package com.bentfores.analysis.service.server.data.misc
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners

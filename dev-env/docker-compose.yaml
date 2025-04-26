@@ -12,7 +12,7 @@ services:
     volumes:
       - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
     ports:
-      - "5434:5432"
+      - "5441:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       start_period: 15s
@@ -96,7 +96,7 @@ services:
       - kafka-2
     entrypoint: >
       /bin/sh -c "
-      kafka-topics.sh --create --topic bot-manager.bot-creation.inbox.v1 --bootstrap-server kafka-1:9091 --partitions 3 --replication-factor 2 &&
+      kafka-topics.sh --create --topic analysis-service.product-info.v1 --bootstrap-server kafka-1:9091 --partitions 3 --replication-factor 2 &&
       "
 
   keycloak:

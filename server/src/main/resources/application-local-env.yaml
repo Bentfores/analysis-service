@@ -1,6 +1,6 @@
 ---
 server:
-  port: 8083
+  port: 8085
   cors:
     allowed-origin-patterns:
       - '*'
@@ -17,7 +17,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/bentfores-analysis-service
+    url: jdbc:postgresql://localhost:5441/bentfores-analysis-service
     username: bentfores-analysis-service
     password: bentfores-analysis-service
 
@@ -36,16 +36,6 @@ spring:
     consumer:
       properties:
         schema.registry.url: http://localhost:8081
-    producer:
-      properties:
-        schema.registry.url: http://localhost:8081
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8444/realms/local
-          jwk-set-uri: http://localhost:8444/realms/local/protocol/openid-connect/certs
 
 system:
   kafka:
@@ -62,12 +52,8 @@ springdoc:
 
 api:
   external:
-    goods-and-seller-management-url: localhost:8082
-    goods-aggregator-url: localhost:8083
-
-jobs:
-  inactive-bots-refresher:
-    enabled: false
+    goods-and-seller-management-url: localhost:8083
+    goods-aggregator-url: localhost:8093
 
 management:
   tracing:
